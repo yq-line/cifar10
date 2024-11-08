@@ -7,42 +7,6 @@ import torch
 import matplotlib.pyplot as plt
 from earlystoping import EarlyStopping
 
-# def k_fold_train(model, train_loader,epochs, criterion, optimizer,device,k):
-#     k_fold_scores = []
-#     data_size = len(train_loader)
-
-#     # 计算每个fold的数据量
-#     fold_size = data_size // k
-
-#     # 对于K值和数据集中每个fold
-#     for fold_idx in range(k):
-#         # 将数据集分成训练集和测试集
-#         start_idx = fold_idx * fold_size
-#         end_idx = start_idx + fold_size
-
-#         validation_data = train_loader[start_idx:end_idx]
-#         training_data = torch.cat((train_loader[:start_idx], train_loader[end_idx:]), dim=0)
-
-#         # 创建训练器
-#         trainer = create_trainer(model, learning_rate)
-
-#         # 训练模型
-#         train_loader = DataLoader(training_data, batch_size=batch_size, shuffle=True)
-#         for epoch in range(num_epochs):
-#             # 训练模型
-#             for batch_index, (x_data, y_data) in enumerate(train_loader):
-#                 trainer.train_step(x_data, y_data)
-
-#         # 运行测试数据
-#         validation_loader = DataLoader(validation_data, batch_size=batch_size, shuffle=True)
-#         accuracy = evaluate_accuracy(model, validation_loader)
-#         print(f"Fold {fold_idx+1} accuracy: {accuracy}")
-
-#         # 保存验证分数
-#         k_fold_scores.append(accuracy)
-
-#     # 返回平均验证分数
-#     return sum(k_fold_scores) / k
 
 def train(model, train_loader,epochs, criterion, optimizer,device,PATH,k):
     train_losses = []
@@ -100,36 +64,7 @@ def train(model, train_loader,epochs, criterion, optimizer,device,PATH,k):
                 return train_losses,val_losses,acces
 
             val_loss,val_total,correct = 0,0,0
-        # for i, data in enumerate(train_loader, 0):
-        #     # get the inputs; data is a list of [inputs, labels]
-        #     inputs, labels = data[0].to(device), data[1].to(device)
 
-        #     # zero the parameter gradients
-        #     optimizer.zero_grad()
-
-        #     # forward + backward + optimize
-        #     outputs = model(inputs)
-        #     loss = criterion(outputs, labels)
-        #     _, predicted = torch.max(outputs.data, 1)
-        #     total += labels.size(0)
-        #     correct += (predicted == labels).sum().item()
-        #     loss.backward()
-        #     optimizer.step()
-
-        #     # print statistics
-        #     running_loss += loss.item()
-            # if i % 250 == 249:    # print every 250 mini-batches
-            #     print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 250:.3f} acc:{100 * correct // total} %')
-                # total = 0
-                # correct = 0
-                # running_loss = 0.0
-        # print(f'[epoch: {epoch + 1}] loss: {running_loss / len(train_loader)} acc: {100 * correct // total} %')
-        # train_losses.append(train_loss / len(train_loader))
-        # acces.append(correct / total)
-        # train_total,val_total = 0 , 0
-        # correct = 0
-        # train_loss = 0.0
-        # val_loss = 0.0
     path = os.path.join(PATH, 'finally_network.pth')
     torch.save(model.state_dict(), path)
     return train_losses,val_losses,acces
@@ -140,9 +75,9 @@ def main():
     k = 10
     # train_loader = get_dataloader()
     train_loader = k_fold_get_dataloader(train=True,k=k)
-    net = effnetv2_s()
+    net = effnetv2_xl()
     net.to(device)
-    epochs = 10
+    epochs = 50
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
     # optimizer = torch.optim.Adam(net.parameters(), lr=0.003, weight_decay=1e-4)

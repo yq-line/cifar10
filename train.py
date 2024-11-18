@@ -75,7 +75,7 @@ def main():
     k = 10
     # train_loader = get_dataloader()
     train_loader = k_fold_get_dataloader(train=True,k=k)
-    net = effnetv2_xl()
+    net = efficientnetv2_s()
     net.to(device)
     epochs = 50
     criterion = nn.CrossEntropyLoss()

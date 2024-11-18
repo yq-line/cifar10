@@ -38,6 +38,7 @@ def k_fold_get_dataloader(train=True,k=10):
     train_transforms = transforms.Compose([
         transforms.RandomCrop(32, padding=4),
         transforms.RandomHorizontalFlip(),
+        torchvision.transforms.RandAugment(num_ops = 2, magnitude = 3, num_magnitude_bins = 7),
         transforms.ToTensor(),
         normalization
     ])

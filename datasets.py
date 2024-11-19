@@ -32,17 +32,22 @@ def get_dataloader(train=True):
     else:
         return val_loader
 def k_fold_get_dataloader(train=True,k=10):
-    batch_size = 128
+    batch_size = 64
     normalization = transforms.Normalize([0.4914, 0.4822, 0.4465], [0.2023, 0.1994, 0.2010])
-
+    img_size = {"s": [200, 224],  # train_size, val_size
+                "m": [384, 480],
+                "l": [384, 480]}
+    num_model = "s"
     train_transforms = transforms.Compose([
-        transforms.RandomCrop(32, padding=4),
+        # transforms.RandomCrop(32, padding=4),
+        transforms.RandomResizedCrop(img_size[num_model][0]),
         transforms.RandomHorizontalFlip(),
         torchvision.transforms.RandAugment(num_ops = 2, magnitude = 3, num_magnitude_bins = 7),
         transforms.ToTensor(),
         normalization
     ])
     val_transforms = transforms.Compose([
+        transforms.Resize(img_size[num_model][1]),
         transforms.ToTensor(),
         normalization
     ])

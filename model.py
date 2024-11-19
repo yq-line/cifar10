@@ -241,7 +241,7 @@ class FusedMBConv(nn.Module):
 class EfficientNetV2(nn.Module):
     def __init__(self,
                  model_cnf: list,
-                 num_classes: int = 1000,
+                 num_classes: int = 10,
                  num_features: int = 1280,
                  dropout_rate: float = 0.2,
                  drop_connect_rate: float = 0.2):
@@ -316,7 +316,7 @@ class EfficientNetV2(nn.Module):
         return x
 
 
-def efficientnetv2_s(num_classes: int = 100):
+def efficientnetv2_s(num_classes: int = 10):
     """
     EfficientNetV2
     https://arxiv.org/abs/2104.00298
@@ -337,7 +337,7 @@ def efficientnetv2_s(num_classes: int = 100):
     return model
 
 
-def efficientnetv2_m(num_classes: int = 100):
+def efficientnetv2_m(num_classes: int = 10):
     """
     EfficientNetV2
     https://arxiv.org/abs/2104.00298
@@ -359,7 +359,7 @@ def efficientnetv2_m(num_classes: int = 100):
     return model
 
 
-def efficientnetv2_l(num_classes: int = 100):
+def efficientnetv2_l(num_classes: int = 10):
     """
     EfficientNetV2
     https://arxiv.org/abs/2104.00298

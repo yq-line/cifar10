@@ -79,7 +79,7 @@ def main():
     net.to(device)
     epochs = 50
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+    optimizer = optim.SGD(net.parameters(), lr=0.005, momentum=0.9, weight_decay=1E-4)
     # optimizer = torch.optim.Adam(net.parameters(), lr=0.003, weight_decay=1e-4)
     PATH = './weights'
     train_losses,val_losses,acces = train(net,train_loader,epochs,criterion,optimizer,device,PATH,k)

@@ -2,6 +2,7 @@ from datasets import *
 from model import *
 import torch.nn as nn
 import os
+from build import *
 
 def eval(model, test_loader,device):
     correct = 0
@@ -20,7 +21,7 @@ def eval(model, test_loader,device):
     print(f'Accuracy of the network on the 10000 test images: {100 * correct / total} %')
 def main():
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-    model = effnetv2_s()
+    model = EfficientViT_M5()
     model.to(device)
     # load model
     PATH = './weights/best_network.pth'

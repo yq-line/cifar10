@@ -91,6 +91,6 @@ def EfficientViT_M4(num_classes=10, distillation=False, model_cfg=EfficientViT_m
     return model
 
 @register_model
-def EfficientViT_M5(num_classes=10, distillation=False, model_cfg=EfficientViT_m5):
+def EfficientViT_M5(num_classes=10, distillation=True, model_cfg=EfficientViT_m5):
     model = EfficientViT(num_classes=num_classes, distillation=distillation, **model_cfg)
     return model

@@ -385,6 +385,7 @@
 import torch
 import torch.nn as nn
 import math
+import torchvision
 
 __all__ = ['effnetv2_s', 'effnetv2_m', 'effnetv2_l', 'effnetv2_xl']
 
@@ -485,11 +486,12 @@ class MBConv(nn.Module):
                 nn.Conv2d(hidden_dim, oup, 1, 1, 0, bias=False),
                 nn.BatchNorm2d(oup),
             )
-
+        # self.stochastic_depth = torchvision.ops.stochastic_depth(p=0.3)
 
     def forward(self, x):
         if self.identity:
-            return x + self.conv(x)
+            y = torchvision.ops.stochastic_depth(x,p=0.2,mode='row')
+            return x + self.conv(y)
         else:
             return self.conv(x)
 
@@ -515,7 +517,7 @@ class EffNetV2(nn.Module):
         self.conv = conv_1x1_bn(input_channel, output_channel)
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.classifier = nn.Linear(output_channel, num_classes)
-
+        self.dropout = nn.Dropout(p=0.4)
         self._initialize_weights()
 
     def forward(self, x):
@@ -523,6 +525,7 @@ class EffNetV2(nn.Module):
         x = self.conv(x)
         x = self.avgpool(x)
         x = x.view(x.size(0), -1)
+        x = self.dropout(x)
         x = self.classifier(x)
         return x
 

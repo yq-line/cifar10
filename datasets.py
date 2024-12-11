@@ -7,9 +7,9 @@ from torch.utils.data import default_collate
 ROOT = './data'
 
 def get_dataloader(train=True):
-    batch_size = 128
+    batch_size = 64
     # normalization = transforms.Normalize([0.4914, 0.4822, 0.4465], [0.2023, 0.1994, 0.2010])
-    img_size = [224, 224]
+    img_size = [32, 32]
     # train_transforms = transforms.Compose([
     #     # transforms.RandomCrop(32, padding=4),
     #     transforms.RandomResizedCrop(img_size[0]),
@@ -25,13 +25,14 @@ def get_dataloader(train=True):
         v2.RandomResizedCrop(img_size[0]),
         v2.RandAugment(num_ops = 2, magnitude = 9, num_magnitude_bins = 31),
         v2.ToDtype(torch.float32, scale=True),  # Normalize expects float input
-        v2.Normalize(mean=[0.4914, 0.4822, 0.4465], std=[0.2023, 0.1994, 0.2010]),
+        v2.Normalize(mean=[0.4914, 0.4822, 0.4465], std=[0.2470, 0.2435, 0.2616]),
+        v2.RandomErasing()
     ])
     val_transforms = v2.Compose([
         v2.PILToTensor(),
         v2.Resize(img_size[1]),
         v2.ToDtype(torch.float32, scale=True),
-        v2.Normalize(mean=[0.4914, 0.4822, 0.4465], std=[0.2023, 0.1994, 0.2010]),
+        v2.Normalize(mean=[0.4914, 0.4822, 0.4465], std=[0.2470, 0.2435, 0.2616]),
     ])
     # val_transforms = transforms.Compose([
     #     transforms.Resize(img_size[1]),

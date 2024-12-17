@@ -153,7 +153,7 @@ class BN_Linear(torch.nn.Sequential):
 class PatchMerging(torch.nn.Module):
     def __init__(self, dim, out_dim,resolution):
         super().__init__()
-        self.cfgs = [[4, out_dim, 16//resolution, 2, 1],
+        self.cfgs = [[4, out_dim, 32//resolution, 2, 1],
                      [6, out_dim, 32//resolution, 1, 1]]
         input_channel = _make_divisible(out_dim , 8)
         layers = [conv_3x3_bn(dim,out_dim,1)]
@@ -291,8 +291,8 @@ class LocalWindowAttention(torch.nn.Module):
     """
     def __init__(self, dim, key_dim, num_heads=8,
                  attn_ratio=4,
-                 resolution=4,
-                 window_resolution=4,
+                 resolution=8,
+                 window_resolution=8,
                  kernels=[5, 5, 5, 5],):
         super().__init__()
         self.dim = dim
@@ -345,11 +345,11 @@ class LocalWindowAttention(torch.nn.Module):
 class Patch_embed(torch.nn.Module):
     def __init__(self, embed_dim,width_mult=1.):
         super(Patch_embed, self).__init__()
-        self.cfgs = [[1, 16, 2, 2, 0],
+        self.cfgs = [[2, 16, 2, 2, 0],
                      [2, 24, 2, 2, 0],
-                     [4, 48, 4, 1, 1],
+                     [4, 48, 3, 1, 1],
                      [4, embed_dim, 4, 1, 1]]
-        input_channel = _make_divisible(embed_dim//8 * width_mult, 8)
+        input_channel = _make_divisible(16 * width_mult, 8)
         layers = [conv_3x3_bn(3, input_channel, 1)]
         block = MBConv
         for t, c, n, s, use_se in self.cfgs:
@@ -402,9 +402,9 @@ class cnt(torch.nn.Module):
                  stages=['s', 's', 's'],
                  embed_dim=[64, 96, 128],
                  key_dim=[16, 16, 16],
-                 depth=[1, 2, 1],
+                 depth=[2, 2, 1],
                  num_heads=[4, 4, 4],
-                 window_size=[4, 4, 4],
+                 window_size=[8, 4, 4],
                  kernels=[5, 3, 3, 1],
                  down_ops=[['subsample', 2], ['subsample', 2], ['']],
                  distillation=True,):
@@ -437,8 +437,8 @@ class cnt(torch.nn.Module):
                 #                     Residual(FFN(embed_dim[i + 1], int(embed_dim[i + 1] * 2), resolution)),))
         self.blocks1 = torch.nn.Sequential(*self.blocks1)
         self.blocks2 = torch.nn.Sequential(*self.blocks2)
-        self.blocks3 = torch.nn.Sequential(*self.blocks3)
-        self.blocks4 = torch.nn.Sequential(nn.Conv2d(128, 1024, 2, padding=0),
+        #self.blocks3 = torch.nn.Sequential(*self.blocks3)
+        self.blocks4 = torch.nn.Sequential(nn.Conv2d(96, 1024, 4, padding=0),
                 nn.BatchNorm2d(1024),
                 nn.SiLU())
         # Classification head
@@ -459,7 +459,7 @@ class cnt(torch.nn.Module):
         x = self.patch_embed(x)
         x = self.blocks1(x)
         x = self.blocks2(x)
-        x = self.blocks3(x)
+        # x = self.blocks3(x)
         x = self.blocks4(x)
         x = torch.nn.functional.adaptive_avg_pool2d(x, 1).flatten(1)
         if self.distillation:

@@ -64,7 +64,15 @@ EfficientViT_m5 = {
         'kernels': [7, 5, 3, 3],
     }
 
-
+EfficientViT_m32 = {
+        'img_size': 32,
+        'patch_size': 16,
+        'embed_dim': [128, 192, 224],
+        'depth': [1, 2, 3],
+        'num_heads': [4, 4, 4],
+        'window_size': [4, 4, 4],
+        'kernels': [5, 3, 3, 1],
+    }
 @register_model
 def EfficientViT_M0(num_classes=10, distillation=False, model_cfg=EfficientViT_m0):
     model = EfficientViT(num_classes=num_classes, distillation=distillation, **model_cfg)
@@ -92,5 +100,10 @@ def EfficientViT_M4(num_classes=10, distillation=False, model_cfg=EfficientViT_m
 
 @register_model
 def EfficientViT_M5(num_classes=10, distillation=True, model_cfg=EfficientViT_m5):
+    model = EfficientViT(num_classes=num_classes, distillation=distillation, **model_cfg)
+    return model
+
+@register_model
+def EfficientViT_M32(num_classes=10, distillation=True, model_cfg=EfficientViT_m32):
     model = EfficientViT(num_classes=num_classes, distillation=distillation, **model_cfg)
     return model

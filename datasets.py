@@ -7,9 +7,9 @@ from torch.utils.data import default_collate
 ROOT = './data'
 
 def get_dataloader(train=True):
-    batch_size = 64
+    batch_size = 16
     # normalization = transforms.Normalize([0.4914, 0.4822, 0.4465], [0.2023, 0.1994, 0.2010])
-    img_size = [32, 32]
+    img_size = [224, 224]
     # train_transforms = transforms.Compose([
     #     # transforms.RandomCrop(32, padding=4),
     #     transforms.RandomResizedCrop(img_size[0]),

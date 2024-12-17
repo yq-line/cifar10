@@ -215,8 +215,8 @@ class SwinTransformerBlock(nn.Module):
         pretrained_window_size (int): Window size in pre-training.
     """
 
-    def __init__(self, dim, input_resolution, num_heads, window_size=7, shift_size=0,
-                 mlp_ratio=4., qkv_bias=True, drop=0., attn_drop=0., drop_path=0.,
+    def __init__(self, dim, input_resolution, num_heads, window_size=4, shift_size=2,
+                 mlp_ratio=4., qkv_bias=True, drop=0.1, attn_drop=0.1, drop_path=0.1,
                  act_layer=nn.GELU, norm_layer=nn.LayerNorm, pretrained_window_size=0):
         super().__init__()
         self.dim = dim
@@ -526,10 +526,10 @@ class SwinTransformerV2(nn.Module):
         pretrained_window_sizes (tuple(int)): Pretrained window sizes of each layer.
     """
 
-    def __init__(self, img_size=224, patch_size=4, in_chans=3, num_classes=10,
-                 embed_dim=96, depths=[2, 2, 6, 2], num_heads=[3, 6, 12, 24],
-                 window_size=7, mlp_ratio=4., qkv_bias=True,
-                 drop_rate=0., attn_drop_rate=0., drop_path_rate=0.1,
+    def __init__(self, img_size=32, patch_size=4, in_chans=3, num_classes=10,
+                 embed_dim=96, depths=[2, 2, 6, 2], num_heads=[3, 4, 6, 4],
+                 window_size=4, mlp_ratio=4., qkv_bias=True,
+                 drop_rate=0., attn_drop_rate=0.1, drop_path_rate=0.1,
                  norm_layer=nn.LayerNorm, ape=False, patch_norm=True,
                  use_checkpoint=False, pretrained_window_sizes=[0, 0, 0, 0], **kwargs):
         super().__init__()

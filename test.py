@@ -4,6 +4,10 @@ import torch.nn as nn
 import os
 from build import *
 from airbench96 import *
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix
 
 def load_weights(path):
     # torch2.0版本以上支持torch.compile来跑模型，会快，但是compile还只支持linux系统
@@ -20,9 +24,22 @@ def load_weights(path):
             del new_weight[key]
     return new_weight
 
-def eval(model, test_loader,device):
+def plot_confusion_matrix(cm, classes,save_path=None):
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
+                xticklabels=classes, yticklabels=classes)
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+    plt.title('Confusion Matrix')
+    if save_path:
+        plt.savefig(save_path)  # 保存为图片文件
+    plt.show()
+
+def eval(model, test_loader,device,class_names):
     correct = 0
     total = 0
+    all_labels = []
+    all_preds = []
     # since we're not training, we don't need to calculate the gradients for our outputs
     with torch.no_grad():
         for data in test_loader:
@@ -33,39 +50,39 @@ def eval(model, test_loader,device):
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
+            all_labels.extend(labels.cpu().numpy())
+            all_preds.extend(predicted.cpu().numpy())
 
     print(f'Accuracy of the network on the 10000 test images: {100 * correct / total} %')
-def test(test_loader, model,device,n_classes):
+    cm = confusion_matrix(all_labels, all_preds)
+    save_path = 'confusion_matrix.png'
+    plot_confusion_matrix(cm, class_names,save_path)
+
+def test(test_loader, model,device,class_names):
     model.eval()
-    # test_loss = 0 
-    target_num = torch.zeros((1, n_classes)) # n_classes为分类任务类别数量
-    predict_num = torch.zeros((1, n_classes))
-    acc_num = torch.zeros((1, n_classes))
+    total = 0
+    correct = 0
+    all_labels = []
+    all_preds = []
 
     with torch.no_grad():
-        for step, (inputs, targets) in enumerate(test_loader):
+        for inputs, targets in test_loader:
             inputs, targets = inputs.to(device), targets.to(device)
-            # inputs = inputs.half()
             outputs = model(inputs)
-            # loss = criterion(outputs, targets)
-
-            # test_loss += loss.item()
             _, predicted = outputs.max(1)
-            
-            pre_mask = torch.zeros(outputs.size()).scatter_(1, predicted.cpu().view(-1, 1), 1.)
-            predict_num += pre_mask.sum(0)  # 得到数据中每类的预测量
-            tar_mask = torch.zeros(outputs.size()).scatter_(1, targets.data.cpu().view(-1, 1), 1.)
-            target_num += tar_mask.sum(0)  # 得到数据中每类的数量
-            acc_mask = pre_mask * tar_mask 
-            acc_num += acc_mask.sum(0) # 得到各类别分类正确的样本数量
+            all_labels.extend(targets.cpu().numpy())
+            all_preds.extend(predicted.cpu().numpy())
 
-        recall = acc_num / target_num
-        precision = acc_num / predict_num
-        F1 = 2 * recall * precision / (recall + precision)
-        accuracy = 100. * acc_num.sum(1) / target_num.sum(1)
+            total += targets.size(0)
+            correct += (predicted == targets).sum().item()
 
-        print('Test Acc {}, recal {}, precision {}, F1-score {}'.format(accuracy, recall, precision, F1))
-        return 
+    accuracy = 100. * correct / total
+    print(f'Test Acc: {accuracy:.2f}%')
+
+    # 计算并绘制混淆矩阵
+    cm = confusion_matrix(all_labels, all_preds)
+    save_path = 'confusion_matrix.png'
+    plot_confusion_matrix(cm, class_names,save_path)
 
 def main():
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -80,9 +97,9 @@ def main():
     test_loader = get_dataloader(train=False)
     # test
     # eval(model, test_loader,device)
-    nc=10
-    test(test_loader,model,device,nc)
-
+    # CIFAR-10 类别名称
+    class_names = ['plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
+    test(test_loader,model,device,class_names)
 
 
 if __name__ == '__main__':

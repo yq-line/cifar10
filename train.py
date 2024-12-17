@@ -14,6 +14,7 @@ from cnt import cnt
 from airbench96 import *
 from eval import load_weights
 from losses import DistillationLoss
+from clipres import ModifiedResNet
 
 # def train(model, train_loader,epochs, criterion, optimizer,device,PATH,k):
 #     train_losses = []
@@ -163,6 +164,8 @@ def main():
     # train_loader = get_dataloader()
     train_loader,val_loader = get_dataloader(train=True)
     model = cnt()
+    
+    model = ModifiedResNet([2,3,4,5],1024,128)
     # net = EfficientViT_M0()
     # net = faster_vit_0_224()
     model.to(device)
@@ -170,12 +173,12 @@ def main():
     warmup_epoch = 10
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(model.parameters(), lr=0.008, momentum=0.9, weight_decay=1E-4)
-    teachermodel = model_trainbias = make_net(hyp['net'])
-    weights = load_weights('./weights/1.pth')
-    teachermodel.load_state_dict(weights)
-    teachermodel.to(device)
-    teachermodel.eval()
-    criterion = DistillationLoss(criterion, teachermodel, 'soft', 0.4, 3.0)
+    # teachermodel = model_trainbias = make_net(hyp['net'])
+    # weights = load_weights('./weights/1.pth')
+    # teachermodel.load_state_dict(weights)
+    # teachermodel.to(device)
+    # teachermodel.eval()
+    # criterion = DistillationLoss(criterion, teachermodel, 'soft', 0.4, 3.0)
     # milestones = [60,110,200,300]
     # scheduler = optim.lr_scheduler.MultiStepLR(optimizer=optimizer, milestones=milestones, gamma=0.25)
     # optimizer = torch.optim.Adam(net.parameters(), lr=0.03, weight_decay=1e-4)
@@ -186,7 +189,7 @@ def main():
     plt.plot(val_losses, color='blue', label='val loss')
     plt.plot(train_losses, color='red', label='train loss')
     plt.xlabel('Epochs')
-    plt.savefig(f"./result.png")
+    plt.savefig(f"./clipresult.png")
     plt.show()
 if __name__ == '__main__':
     main()
